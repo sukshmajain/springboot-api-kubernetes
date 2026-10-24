@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: springboot-api
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: springboot-api
+
+  template:
+    metadata:
+      labels:
+        app: springboot-api
+
+    spec:
+      containers:
+        - name: springboot-api
+
+          image: sukshmajain/springboot-api:1.0
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8080
+
+          envFrom:
+            - configMapRef:
+                name: springboot-api-config
+            - secretRef:
+                name: springboot-api-secret
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
